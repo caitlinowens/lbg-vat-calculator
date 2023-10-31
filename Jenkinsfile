@@ -8,6 +8,21 @@ pipeline {
           git branch: 'main', url: 'https://github.com/caitlinowens/lbg-vat-calculator.git'
         }
     }
+
+    stage('Install') {
+        steps {
+            // Install the ReactJS dependencies
+            sh "npm install"
+        }
+    }
+    
+    stage('Test') {
+    steps {
+      // Run the ReactJS tests
+      sh "npm test"
+    }
+}
+
     stage('SonarQube Analysis') {
       environment {
         scannerHome = tool 'sonarqube'
@@ -17,6 +32,9 @@ pipeline {
               sh "${scannerHome}/bin/sonar-scanner"
             }  
         }
+      timeout(time: 10, unit: 'MINUTES'){
+    waitForQualityGate abortPipeline: true
+}
     }
   }
 }
